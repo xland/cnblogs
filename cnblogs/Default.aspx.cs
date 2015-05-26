@@ -20,35 +20,65 @@ namespace cnblogs
             string action = base.Request.Form["Action"];
             if (!string.IsNullOrEmpty(action))
             {
-                base.Response.Clear();
-                if (!(action == "Login"))
+                Response.Clear();
+                if (action == "Save")
                 {
-                    if (action == "Save")
-                    {
-                        this.Save();
-                    }
+                    this.Save();
+                }
+                else if (action == "GetLast")
+                {
+                    GetLast();
                 }
                 else
                 {
                     this.Login();
                 }
-                base.Response.End();
+                Response.End();
+            }
+        }
+        private void GetLast()
+        {
+            string CnBlogsUserName = base.Request.Form["CnBlogsUserName"];
+            string CnBlogsPassWord = base.Request.Form["CnBlogsPassWord"];
+            string ApiAddress = Request.Form["ApiAddress"];
+            CnBlogsUserName = Decrypt(CnBlogsUserName);
+            CnBlogsPassWord = Decrypt(CnBlogsPassWord);
+            ApiAddress = Decrypt(ApiAddress);
+            IgetCatList categories = (IgetCatList)XmlRpcProxyGen.Create(typeof(IgetCatList));
+            ((XmlRpcClientProtocol)categories).Url = ApiAddress;
+            try
+            {
+                var obj = categories.getRecentPosts(CnBlogsUserName, CnBlogsUserName, CnBlogsPassWord, 1);
+                if (obj.Length < 1)
+                {
+                    Response.Write("没有获取到博客");
+                    return;
+                }
+                string sRet = new JavaScriptSerializer().Serialize(obj[0]);
+                Response.Write(sRet);
+            }
+            catch
+            {
+                Response.Write("获取最近一篇博客出现异常");
             }
         }
         private void Save()
         {
             int imgErr = 0;
-            string CnBlogsUserName = base.Request.Form["CnBlogsUserName"];
-            string CnBlogsPassWord = base.Request.Form["CnBlogsPassWord"];
-            CnBlogsUserName = this.Decrypt(CnBlogsUserName);
-            CnBlogsPassWord = this.Decrypt(CnBlogsPassWord);
-            string[] picRes = base.Request.Form["PicRes"].Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string CnBlogsUserName = Request.Form["CnBlogsUserName"];
+            string CnBlogsPassWord = Request.Form["CnBlogsPassWord"];
+            string ApiAddress = Request.Form["ApiAddress"];
+            CnBlogsUserName = Decrypt(CnBlogsUserName);
+            CnBlogsPassWord = Decrypt(CnBlogsPassWord);
+            ApiAddress = Decrypt(ApiAddress);
+            string[] picRes = Request.Form["PicRes"].Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             IgetCatList categories = (IgetCatList)XmlRpcProxyGen.Create(typeof(IgetCatList));
-            ((XmlRpcClientProtocol)categories).Url = string.Format("http://rpc.cnblogs.com/metaweblog/{0}", CnBlogsUserName);
+            ((XmlRpcClientProtocol)categories).Url = ApiAddress;
             BlogEntity BlogInfo = default(BlogEntity);
-            BlogInfo.title = base.Request.Form["BlogTitle"];
-            BlogInfo.description = base.Request.Form["BlogBody"];
+            BlogInfo.title = Request.Form["BlogTitle"];
+            BlogInfo.description = Request.Form["BlogBody"];
             BlogInfo.dateCreated = DateTime.Now;
+            BlogInfo.postid = Request.Form["BlogId"];
             for (int i = 0; i < picRes.Length; i++)
             {
                 FileData fd = default(FileData);
@@ -58,9 +88,7 @@ namespace cnblogs
                 fd.type = string.Format("image/{0}", fd.name.Substring(1));
                 try
                 {
-                    IgetCatList arg_13F_0 = categories;
-                    string expr_13B = CnBlogsUserName;
-                    FileData obj = arg_13F_0.newMediaObject(expr_13B, expr_13B, CnBlogsPassWord, fd);
+                    FileData obj = categories.newMediaObject(CnBlogsUserName, CnBlogsUserName, CnBlogsPassWord, fd);
                     BlogInfo.description = BlogInfo.description.Replace(picRes[i], obj.url);
                 }
                 catch
@@ -70,31 +98,41 @@ namespace cnblogs
             }
             try
             {
-                categories.newPost(string.Empty, CnBlogsUserName, CnBlogsPassWord, BlogInfo, false);
+                if (string.IsNullOrWhiteSpace(BlogInfo.postid))
+                {
+                    categories.newPost(string.Empty, CnBlogsUserName, CnBlogsPassWord, BlogInfo, false);
+                }
+                else
+                {
+
+                    categories.editPost(BlogInfo.postid, CnBlogsUserName, CnBlogsPassWord, BlogInfo, false);
+                }
             }
             catch (Exception)
             {
-                base.Response.Write("博客发送失败");
+                Response.Write("博客发送失败");
                 return;
             }
             if (imgErr < 1)
             {
-                base.Response.Write("博客发送成功");
+                Response.Write("博客发送成功");
                 return;
             }
-            base.Response.Write(string.Format("博客虽然发送成功了，但是有{0}张图片发送失败了", imgErr));
+            Response.Write(string.Format("博客虽然发送成功了，但是有{0}张图片发送失败了", imgErr));
         }
         private void Login()
         {
-            string CnBlogsUserName = base.Request.Form["UserName"];
-            string CnBlogsPassWord = base.Request.Form["PassWord"];
+            string CnBlogsUserName = Request.Form["UserName"];
+            string CnBlogsPassWord = Request.Form["PassWord"];
+            string ApiAddress = Request.Form["ApiAddress"];
             var result = new
             {
-                CnBlogsUserName = this.Encrypt(CnBlogsUserName),
-                CnBlogsPassWord = this.Encrypt(CnBlogsPassWord)
+                CnBlogsUserName = Encrypt(CnBlogsUserName),
+                CnBlogsPassWord = Encrypt(CnBlogsPassWord),
+                ApiAddress = Encrypt(ApiAddress)
             };
             string sRet = new JavaScriptSerializer().Serialize(result);
-            base.Response.Write(sRet);
+            Response.Write(sRet);
         }
         private string Encrypt(string src)
         {

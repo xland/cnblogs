@@ -1,4 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" ValidateRequest="false" CodeBehind="Default.aspx.cs" Inherits="cnblogs.Default" %>
+
 <!DOCTYPE html>
 <html>
 <head runat="server">
@@ -17,27 +18,35 @@
                 , elementPathEnabled: false
                 , wordCount: false
                 , serverUrl: "ueback/controller.ashx"
+                , saveInterval: 360000
             });
-            var heightSpan = 148
-            ue.ready(function () {
-                var h = window.innerHeight - 148;
-                ue.setHeight(h)
-            });
-            window.onresize = function () {
+            var setHeight = function () {
                 var h = window.innerHeight - 148;
                 if (window.innerWidth < 1480) {
                     h = h - 30;
                 }
                 ue.setHeight(h);
             }
-            $("#supportBtn").click(function () {
-                $("#supportFormBtn").click();
+            ue.ready(function () {
+                setHeight();
+                ue.execCommand('fontfamily', '微软雅黑');
             });
+            window.onresize = setHeight;
+            var showLoadingModal = function (title, content) {
+                $("#postAlertTitle").html(title);
+                $("#postAlertInfo").html(content);
+                $("#loadingModal").modal({ closeViaDimmer: 0, width: 280, height: 160 });
+            }
             $("#LoginBtn").click(function () {
                 var obj = {};
                 obj.UserName = $("#UserName").val();
                 obj.PassWord = $("#PassWord").val();
+                obj.ApiAddress = $("#ApiAddress").val();
                 obj.Action = "Login";
+                if (obj.ApiAddress.length < 1 || obj.ApiAddress.search("http://rpc.cnblogs.com/metaweblog") == -1) {
+                    alert("博客metaweblog API地址有误")
+                    return;
+                }
                 if (obj.UserName.length < 1 || obj.PassWord.length < 1) {
                     alert("用户名或者密码不能为空");
                     return;
@@ -45,7 +54,6 @@
                 $.post("Default.aspx", obj, function (data) {
                     $.cookie("BlogUserInfo", data, { expires: 365 });
                     $("#blog-modal-login").modal("close");
-                    $("#SaveBtn").click();
                 });
             })
             $("#SaveBtn").click(function () {
@@ -53,38 +61,60 @@
                 obj.BlogTitle = $("#BlogTitle").val();
                 obj.BlogBody = ue.getContent();
                 obj.Action = "Save";
+                obj.BlogId = $("#BlogId").val();
                 if (obj.BlogTitle.length < 1 || obj.BlogBody.length < 10) {
                     alert("博客标题不能为空且博客的内容不能太少");
                     return;
                 }
                 var cookie = $.cookie('BlogUserInfo');
                 if (!cookie) {
-                    $("#blog-modal-login").modal({ closeViaDimmer: 1, width: 400, height: 240 });
+                    $("#blog-modal-login").modal({ closeViaDimmer: 1, width: 400, height: 300 });
                     return;
                 }
-                $("#loadingModal").modal({ closeViaDimmer: 0, width: 280, height: 160 });
+                showLoadingModal("正在发往博客园，请稍后", '<span class="am-icon-spinner am-icon-spin"></span>');
                 var tempObj = JSON.parse(cookie);
                 obj.CnBlogsUserName = tempObj.CnBlogsUserName;
                 obj.CnBlogsPassWord = tempObj.CnBlogsPassWord;
+                obj.ApiAddress = tempObj.ApiAddress;
                 obj.PicRes = "";
                 var pic = $(obj.BlogBody).find("img[src^='/ueback/upload/']");
                 for (var i = 0; i < pic.length; i++) {
                     obj.PicRes = obj.PicRes + $(pic[i]).attr("src") + ",";
                 }
                 $.post("Default.aspx", obj, function (data) {
-                    $("#postAlertTitle").html(data);
-                    var html = ' <a class="am-btn am-btn-success  am-radius" href="http://i.cnblogs.com" id="redirectBtn" target="_blank">';
+                    var html = ' <button class="am-btn am-btn-success  am-radius" id="redirectBtn">';
                     html += '<i class="am-icon-rss"></i>';
-                    html += '去博客园看看';
-                    html += '</a>';
+                    html += '关闭';
+                    html += '</button>';
+                    $("#postAlertTitle").html(data);
                     $("#postAlertInfo").html(html);
                     $("#redirectBtn").click(function () {
                         $("#loadingModal").modal("close");
                     })
                 });
             })
-
-        })
+            $("#GetBtn").click(function () {
+                var cookie = $.cookie('BlogUserInfo');
+                if (!cookie) {
+                    $("#blog-modal-login").modal({ closeViaDimmer: 1, width: 400, height: 300 });
+                    return;
+                }
+                showLoadingModal("正在获取最近一篇文章", '<span class="am-icon-spinner am-icon-spin"></span>');
+                var tempObj = JSON.parse(cookie);
+                var obj = {};
+                obj.CnBlogsUserName = tempObj.CnBlogsUserName;
+                obj.CnBlogsPassWord = tempObj.CnBlogsPassWord;
+                obj.ApiAddress = tempObj.ApiAddress;
+                obj.Action = "GetLast";
+                $.post("Default.aspx", obj, function (result) {
+                    var data = JSON.parse(result);
+                    ue.setContent(data.description);
+                    $("#BlogTitle").val(data.title);
+                    $("#BlogId").val(data.postid);
+                    $("#loadingModal").modal("close");
+                });
+            })
+        });
     </script>
     <style>
         html, body {
@@ -108,6 +138,7 @@
         <div>
             <form id="form2" class="am-form">
                 <input id="BlogTitle" type="text" placeholder="博客标题">
+                <input id="BlogId" type="hidden" />
             </form>
         </div>
         <div style="margin-top: 12px;">
@@ -128,9 +159,13 @@
             </div>
         </div>
         <div>
+            <button id="GetBtn" type="button" class="am-btn am-btn-success rightBtn  am-radius">
+                <i class="am-icon-retweet"></i>
+                获取（最近一篇博客）
+            </button>
             <button id="SaveBtn" type="button" class="am-btn am-btn-success rightBtn  am-radius">
                 <i class="am-icon-floppy-o"></i>
-                保存到草稿
+                保存（默认到草稿箱）
             </button>
             <form class="am-form" accept-charset="GBK" action="https://shenghuo.alipay.com/send/payment/fill.htm" method="post" target="_blank">
                 <input name="optEmail" type="hidden" value="412588801@qq.com">
@@ -145,6 +180,7 @@
                 <i class="am-icon-rss"></i>
                 作者的博客
             </a>
+            <a data-type="3" data-tmpl="200x200" data-tmplid="197" data-rd="2" data-style="2" data-border="1" href="#"></a>
         </div>
     </div>
     <div class="am-modal am-modal-no-btn" tabindex="-1" id="blog-modal-login">
@@ -156,9 +192,11 @@
             <div class="am-modal-bd">
                 <div class="am-form am-form-horizontal">
                     <div class="am-form-group am-container">
+                        <input id="ApiAddress" type="text" placeholder="MetaWeblog(博客园后台->设置页面最下方)">
+                    </div>
+                    <div class="am-form-group am-container">
                         <input id="UserName" type="text" placeholder="博客园的用户名">
                     </div>
-
                     <div class="am-form-group am-container">
                         <input id="PassWord" type="password" placeholder="博客园的密码">
                     </div>
@@ -186,12 +224,17 @@
     <div class="am-modal am-modal-loading am-modal-no-btn" tabindex="-1" id="loadingModal">
         <div class="am-modal-dialog">
             <div class="am-modal-hd" id="postAlertTitle">正在发往博客园，请稍后</div>
-            <div class="am-modal-bd" id="postAlertInfo" style="padding-top:20px;">
+            <div class="am-modal-bd" id="postAlertInfo" style="padding-top: 20px;">
                 <span class="am-icon-spinner am-icon-spin"></span>
             </div>
         </div>
     </div>
     <form id="form1" class="am-form" runat="server" style="margin: 0px; padding: 0px;">
     </form>
+    <!-- shumanu.com Baidu tongji analytics -->
+    <script type="text/javascript">
+        var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+        document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F9d58e4357ba7a260ce52bb6791a2aedd' type='text/javascript'%3E%3C/script%3E"));
+    </script>
 </body>
 </html>
