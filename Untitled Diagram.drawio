@@ -1,1 +1,55 @@
-<mxfile host="app.diagrams.net" modified="2021-02-07T07:33:34.202Z" agent="5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3861.400 QQBrowser/10.7.4313.400" version="14.2.9" etag="E0NEJKYu4HGTgGZ7SpqI" type="github"><diagram id="muJ2HWbKyWXjHa_u4N1K">UzV2zq1wL0osyPDNT0nNUTV2VTV2LsrPL4GwciucU3NyVI0MMlNUjV1UjYwMgFjVyA2HrCFY1qAgsSg1rwSLBiADYTaQg2Y1AA==</diagram></mxfile>
+<mxfile host="app.diagrams.net" modified="2021-02-07T07:47:39.830Z" agent="5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3861.400 QQBrowser/10.7.4313.400" etag="lIz3PiVg65GQoUOoiLPd" version="14.2.9" type="github">
+  <diagram id="muJ2HWbKyWXjHa_u4N1K" name="Page-1">
+    <mxGraphModel dx="1698" dy="928" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="MjTusuqiSa3jMd16lM1r-5" value="界&lt;br&gt;面" style="rounded=0;whiteSpace=wrap;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="90" y="90" width="530" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-6" value="模型" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="90" y="220" width="530" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-7" value="逻辑" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="90" y="310" width="530" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-8" value="数据访问器" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="90" y="400" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-9" value="HTTP接口" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="400" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-10" value="Socket接口" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="400" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-11" value="Socket服务" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="480" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-12" value="HTTP服务" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="480" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-14" value="IndexDb/LocalStorage/File" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="90" y="475" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-15" value="" style="endArrow=classic;startArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="MjTusuqiSa3jMd16lM1r-6" target="MjTusuqiSa3jMd16lM1r-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="500" as="sourcePoint" />
+            <mxPoint x="440" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-16" value="页面" style="rounded=0;whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="120" y="120" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-17" value="路由" style="rounded=0;whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="170" y="120" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-18" value="组件" style="rounded=0;whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="220" y="120" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="MjTusuqiSa3jMd16lM1r-19" value="组件" style="rounded=0;whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="270" y="120" width="40" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
